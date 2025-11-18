@@ -1,0 +1,81 @@
+import pygame
+import random
+
+pygame.init()
+
+# Dimensões da tela
+largura = 400
+altura = 600
+tela = pygame.display.set_mode((largura, altura))
+pygame.display.set_caption('Jogo de Corrida')
+
+# Cores
+branco = (255, 255, 255)
+preto = (0, 0, 0)
+vermelho = (255, 0, 0)
+azul = (0, 0, 255)
+
+# Carro do jogador
+carro_largura = 50
+carro_altura = 80
+carro_x = largura // 2 - carro_largura // 2
+carro_y = altura - carro_altura
+velocidade = 6
+
+# Inimigo
+inimigo_largura = 80
+inimigo_altura = 50
+inimigo_x = random.randint(0, largura - inimigo_largura)
+inimigo_y = -inimigo_altura
+velocidade_inimigo = 6
+
+# Pontuação
+pontos = 0
+fonte = pygame.font.SysFont(None, 36)
+
+# Clock
+clock = pygame.time.Clock()
+
+rodando = True
+while rodando:
+    clock.tick(60)
+    tela.fill(preto)
+
+    # Eventos
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            rodando = False
+
+    # Movimento do jogador
+    teclas = pygame.key.get_pressed()
+    if teclas[pygame.K_LEFT] and carro_x > 0:
+        carro_x -= velocidade
+    if teclas[pygame.K_RIGHT] and carro_x < largura - carro_largura:
+        carro_x += velocidade
+
+    # Movimento do inimigo
+    inimigo_y += velocidade_inimigo
+    if inimigo_y > altura:
+        inimigo_y = -inimigo_altura
+        inimigo_x = random.randint(0, largura - inimigo_largura)
+        pontos += 1
+        velocidade_inimigo += 0.3  # aumenta a dificuldade
+
+    # Retângulos
+    jogador_rect = pygame.Rect(carro_x, carro_y, carro_largura, carro_altura)
+    inimigo_rect = pygame.Rect(inimigo_x, inimigo_y, inimigo_largura, inimigo_altura)
+
+    # Colisão
+    if jogador_rect.colliderect(inimigo_rect):
+        rodando = False
+
+    # Desenho
+    pygame.draw.rect(tela, azul, jogador_rect)
+    pygame.draw.rect(tela, vermelho, inimigo_rect)
+
+    texto = fonte.render(f'Pontos: {pontos}', True, branco)
+    tela.blit(texto, (10, 10))
+
+    pygame.display.update()
+
+pygame.quit()
